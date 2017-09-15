@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>后台登录</title>
+    <link rel="stylesheet" href="__layui__/css/layui.css">
+</head>
+<body style="background-color: #2F4056!important;">
+<div class="layui-container">
+    <div class="layui-row" style="margin-top: 20%;">
+        <div class="layui-col-md4 layui-col-md-offset4 layui-col-sm6 layui-col-sm-offset3">
+            <from class="layui-form">
+                <div class="layui-form-item">
+                    <input type="text" name="username" placeholder="用户名" autocomplete="off" class="layui-input" lay-verify="username">
+                </div>
+                <div class="layui-form-item">
+                    <input type="password" name="userpassword" placeholder="密码" autocomplete="off" class="layui-input" lay-verify="pass">
+                </div>
+                <!-- <div class="layui-form-item">
+                    <div class="layui-input-inline">
+                        <input type="checkbox" name="switch" lay-text="是|否" lay-skin="switch">
+                    </div>
+                    <div class="layui-form-mid layui-word-aux">是否记住</div>
+                </div> -->
+                <div class="layui-form-item">
+                    <button class="layui-btn" lay-submit lay-filter="dologin" style="width: 100%;">登录</button>
+                </div>
+                <div class="layui-form-item">
+                    <button type="reset" class="layui-btn layui-btn-primary" style="width: 100%;">重置</button>
+                </div>
+            </from>
+        </div>
+    </div>
+</div>
+<script src="__layui__/layui.js"></script>
+<script>
+//JavaScript代码区域
+layui.use(['element', 'form'], function(){
+    var element = layui.element,
+        form = layui.form,
+        layer = layui.layer,
+        $ = layui.$;
+    form.verify({
+        username: function(value, item){ //value：表单的值、item：表单的DOM对象
+            if(!/^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/.test(value) && !/\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/.test(value)){
+                return '用户名只能由字母、数字及下划线组成，且只能以字母开头';
+            }
+        },
+        pass: [
+            /^[\u0021-\u007e]{6,20}$/,
+            '密码必须6到16位，且不能出现空格'
+        ]
+    });
+    form.on('submit(dologin)', function(data){
+        var load = layer.load();
+        $.ajax({
+            url: '/admin/common/doLogin',
+            type: 'POST',
+            data: data.field,
+        })
+        .done(function(e) {
+            layer.msg(e.msg);
+        })
+        .fail(function() {
+            layer.msg("未知错误");
+        })
+        .always(function() {
+            layer.close(load);
+        });
+        
+        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+    });
+});
+</script>
+</body>
+</html>
