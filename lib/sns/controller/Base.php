@@ -44,13 +44,15 @@ class Base extends Controller
             } else {
                 $this->retval['data'] = $msg;
             }
-        } elseif (!is_null($code)) {
+        }
+        if (!is_null($code)) {
             if (is_numeric($code)) {
                 $this->retval['code'] = $msg;
             } else {
                 $this->retval['data'] = $code;
             }
-        } elseif (!is_null($data)) {
+        }
+        if (!is_null($data)) {
             $this->retval['data'] = $data;
         } 
     }

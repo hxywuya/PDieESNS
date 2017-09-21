@@ -34,6 +34,7 @@ class Common extends AdminBase
         if ($userinfo) {
             if ($this->sns_compare_password($param['userpassword'], $userinfo->user_pass)) {
                 $this->buildRetval(1, "登录成功");
+                session('ADMIN_ID', $userinfo->id);
             } else {
                 $this->buildRetval(0, "密码不正确");
             }

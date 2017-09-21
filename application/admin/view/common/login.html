@@ -26,9 +26,6 @@
                 <div class="layui-form-item">
                     <button class="layui-btn" lay-submit lay-filter="dologin" style="width: 100%;">登录</button>
                 </div>
-                <div class="layui-form-item">
-                    <button type="reset" class="layui-btn layui-btn-primary" style="width: 100%;">重置</button>
-                </div>
             </from>
         </div>
     </div>
@@ -61,6 +58,9 @@ layui.use(['element', 'form'], function(){
         })
         .done(function(e) {
             layer.msg(e.msg);
+            if (e.status === 1) {
+                setTimeout(function() {location.href = '/admin';}, 1000);
+            }
         })
         .fail(function() {
             layer.msg("未知错误");

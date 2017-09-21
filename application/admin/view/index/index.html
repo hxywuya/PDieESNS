@@ -5,6 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>后台</title>
     <link rel="stylesheet" href="__layui__/css/layui.css">
+    <style type="text/css">
+        #maintab {
+            height: 100%;
+        }
+
+        #maintab .layui-tab-content {
+            position: absolute;
+            top: 41px;
+            bottom: 3px;
+            width: 100%;
+            padding: 0px;
+        }
+
+        #maintab .layui-tab-item {
+            padding: 0px;
+            height: 100%;
+        }
+
+        .sns-info-box {
+            height: 85px;
+            background-color: #ecf0f5;
+        }
+
+        .sns-info-box .sns-info-box-icon {
+            border-top-left-radius: 2px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 2px;
+            display: block;
+            float: left;
+            height: 85px;
+            width: 85px;
+            text-align: center;
+            line-height: 85px;
+        }
+
+        .sns-info-box .sns-info-box-icon i {
+            font-size: 48px;
+
+        }
+
+        .sns-info-box .sns-info-box-content {
+            padding: 5px 10px;
+            margin-left: 85px;
+        }
+
+        .sns-info-box .sns-info-box-content .sns-info-box-text {
+            display: block;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+            height: 22px;
+            line-height: 22px;
+        }
+        
+        .sns-info-box .sns-info-box-content .sns-info-box-number {
+            display: block;
+            font-weight: bold;
+            font-size: 28px;
+            height: 42px;
+            line-height: 42px;
+        }
+    </style>
 </head>
 <body>
 <div class="layui-layout layui-layout-admin">
@@ -27,7 +92,7 @@
             <li class="layui-nav-item">
                 <a href="javascript:;">
                     <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
-                    Admin
+                    {$admininfo.user_name}
                 </a>
                 <dl class="layui-nav-child">
                     <dd><a href="">基本资料</a></dd>
@@ -41,43 +106,81 @@
     <div class="layui-side layui-bg-black">
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
-            <ul class="layui-nav layui-nav-tree"    lay-filter="test">
-                <li class="layui-nav-item layui-nav-itemed">
-                    <a href="javascript:;">用户管理</a>
-                    <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">管理员列表</a></dd>
-                        <dd><a href="javascript:;">用户列表</a></dd>
-                        <dd><a href="">test</a></dd>
-                    </dl>
-                </li>
-                <li class="layui-nav-item"><a href="">交易市场</a></li>
-                <li class="layui-nav-item"><a href="">发布活动</a></li>
+            <ul class="layui-nav layui-nav-tree" lay-filter="sidenav">
+                <li class="layui-nav-item" data-id="0" data-url="" data-name="仪表盘"><a href="javascript:;"><i class="layui-icon">&#xe68e;</i> 仪表盘</a></li>
+                {volist name="menuTree" id="menu"}
+                    {if condition="count($menu.submenu) gt 0"}
+                        <li class="layui-nav-item layui-nav-itemed">
+                            <a href="javascript:;"><i class="layui-icon">{$menu.icon}</i> {$menu.name}</a>
+                            <dl class="layui-nav-child">
+                            {volist name="menu.submenu" id="submenu"}
+                                <dd data-id="{$submenu.id}" data-url="{$submenu.module}/{$submenu.controller}/{$submenu.action}" data-name="{$submenu.name}">
+                                    <a href="javascript:;">&nbsp;&nbsp;&nbsp;<i class="layui-icon">{$submenu.icon}</i> {$submenu.name}</a>
+                                </dd>
+                            {/volist}
+                            </dl>
+                        </li>
+                    {else /}
+                        <li class="layui-nav-item" data-id="{$menu.id}" data-url="{$menu.module}/{$menu.controller}/{$menu.action}" data-name="{$menu.name}">
+                            <a href="javascript:;"><i class="layui-icon">{$menu.icon}</i> {$menu.name}</a>
+                        </li>
+                    {/if}
+                {/volist}
             </ul>
         </div>
     </div>
     
     <div class="layui-body">
-    <button class="layui-btn site-active" data-type="test" data-moth="1,2,3">一个标准的按钮</button>
-    <button class="layui-btn site-active" data-type="test23" data-moth="1,2,3">一个标准的按钮</button>
-    <button class="layui-btn site-active" data-type="test2" data-moth="1,2,3">一个标准的按钮</button>
         <!-- 内容主体区域 -->
-            <div class="layui-tab" lay-allowClose="true" style="margin: 0px;">
-              <ul class="layui-tab-title">
-                <li class="layui-this">网站设置</li>
-                <li>用户基本管理</li>
-                <li>权限分配</li>
-                <li>全部历史商品管理文字长一点试试</li>
-                <li>订单管理</li>
-              </ul>
-              <div class="layui-tab-content">
-                <div class="layui-tab-item layui-show">1</div>
-                <div class="layui-tab-item">2</div>
-                <div class="layui-tab-item">3</div>
-                <div class="layui-tab-item">4</div>
-                <div class="layui-tab-item">5</div>
-                <div class="layui-tab-item">6</div>
-              </div>
+        <div id="maintab" class="layui-tab layui-tab-brief" style="margin: 0px;" lay-filter="maintab">
+            <ul class="layui-tab-title">
+                <li class="layui-this" lay-id="0">
+                    <span>仪表盘</span>
+                </li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <div class="layui-row">
+                        <div class="layui-col-xs3" style="padding: 6px;">
+                            <div class="sns-info-box">
+                                <span class="sns-info-box-icon layui-bg-orange"><i class="layui-icon">&#xe614;</i></span>
+                                <div class="sns-info-box-content">
+                                    <span class="sns-info-box-text">CPU</span>
+                                    <span class="sns-info-box-number">90%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-xs3" style="padding: 6px;">
+                            <div class="sns-info-box">
+                                <span class="sns-info-box-icon layui-bg-cyan"><i class="layui-icon">&#xe6c6;</i></span>
+                                <div class="sns-info-box-content">
+                                    <span class="sns-info-box-text">赞</span>
+                                    <span class="sns-info-box-number">666</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-xs3" style="padding: 6px;">
+                            <div class="sns-info-box">
+                                <span class="sns-info-box-icon layui-bg-green"><i class="layui-icon">&#xe600;</i></span>
+                                <div class="sns-info-box-content">
+                                    <span class="sns-info-box-text">收藏</span>
+                                    <span class="sns-info-box-number">99</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-col-xs3" style="padding: 6px;">
+                            <div class="sns-info-box">
+                                <span class="sns-info-box-icon layui-bg-blue"><i class="layui-icon">&#xe613;</i></span>
+                                <div class="sns-info-box-content">
+                                    <span class="sns-info-box-text">新用户</span>
+                                    <span class="sns-info-box-number">12</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
     </div>
     
     <div class="layui-footer">
@@ -90,32 +193,50 @@
 //JavaScript代码区域
 layui.use('element', function(){
     var element = layui.element,
-    $ = layui.$;
+        $ = layui.$;
 
-    var ac = {
-        test:function()
+    var app = {
+        gettab:function(id, name, url)
         {
-            alert(123);
+            console.log('动态加载......'+url);
+            element.tabAdd("maintab", {
+                title: '<span>' + name + '</span><i class="layui-icon layui-unselect layui-tab-close maintab-blanker" data-tab="' + id + '">&#x1006;</i>',
+                content: '<iframe style="width:100%;height: 100%;" frameborder="0" class="appiframe" src="' + url + '" id="appiframe-49admin"></iframe>', //支持传入html
+                id: id
+            });
+            element.tabChange('maintab', id);
         },
-        test2:function()
+        maintabChange:function(id, name, url)
         {
-            alert(12322222);
+            if ($("[lay-id='" + id + "']").length > 0) {
+                element.tabChange('maintab', id);
+            } else {
+                this.gettab(id, name, url);
+            }
+        },
+        maintabClose:function(tabid)
+        {
+            if (tabid != "admin/index/index") {
+                element.tabDelete("maintab", tabid);
+            }
         }
     }
 
-    $(".site-active").on('click', function(event) {
-        var othis = $(this),
-            type = othis.data('type'),
-            moth = othis.data('moth');
-        if (ac[type]) {
-            console.log('存在')
-        } else {
-            console.log('不存在');
-            return;
-        }
-        console.log(moth);
+    // 侧边栏菜单
+    element.on('nav(sidenav)', function(elem){
+        var $this = $(this),
+            id = $this.data('id'),
+            url = $this.data('url'),
+            name = $this.data('name');
+        app.maintabChange(id, name, url);
+    });
 
-        ac[type]();
+    // 主选项卡关闭按钮
+    $("#maintab").on('click', '.maintab-blanker', function(event) {
+        var $this = $(this),
+            tabid = $this.data('tab');
+        // 除了首页以外都可以被关闭
+        app.maintabClose(tabid);
     });
 });
 </script>

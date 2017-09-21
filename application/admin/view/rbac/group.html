@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>后台登录</title>
+    <link rel="stylesheet" href="__layui__/css/layui.css">
+</head>
+<body>
+    <table id="admin-group-list" lay-filter="admin-group-list">
+    </table>
+<script src="__layui__/layui.js"></script>
+<script>
+//JavaScript代码区域
+layui.use(['element', 'form', 'table'], function(){
+    var element = layui.element,
+        form = layui.form,
+        layer = layui.layer,
+        table = layui.table,
+        $ = layui.$;
+    table.render({
+        elem: '#admin-group-list', //指定原始表格元素选择器（推荐id选择器）
+        page: true,
+        height: 315, //容器高度
+        cols: [[
+            {field: 'id', title: 'ID', width: 50},
+            {field: 'status', title: '状态', width: 60},
+            {field: 'name', title: '组名', width: 120},
+            {field: 'create_time', title: '创建时间', width: 200},
+            {field: 'update_time', title: '更新时间', width: 200},
+            {field: 'remark', title: '备注', width: 120},
+            {fixed: 'right', title: '操作', width:150, align:'center', toolbar: '#barDemo'}
+        ]], //设置表头
+        url: "/admin/rbac/grouplist",
+        response: {
+            statusName: 'status', //数据状态的字段名称，默认：code
+            statusCode: 1, //成功的状态码，默认：0
+            msgName: 'msg', //状态信息的字段名称，默认：msg
+            countName: 'count', //数据总数的字段名称，默认：count
+            dataName: 'data', //数据列表的字段名称，默认：data
+        }
+    });
+    table.on('tool(admin-group-list)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+        var data = obj.data; //获得当前行数据
+        var layEvent = obj.event; //获得 lay-event 对应的值
+        var tr = obj.tr; //获得当前行 tr 的DOM对象
+     
+        if(layEvent === 'detail'){ //查看
+            //do somehing
+        } else if(layEvent === 'del'){ //删除
+            layer.confirm('真的删除行么', function(index){
+                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                layer.close(index);
+                //向服务端发送删除指令
+            });
+        } else if(layEvent === 'edit'){ //编辑
+            //do something
+        
+            //同步更新缓存对应的值
+            obj.update({
+                username: '123'
+                ,title: 'xxx'
+            });
+        }
+    });
+});
+</script>
+<script type="text/html" id="barDemo">
+    <!-- 这里同样支持 laytpl 语法，如： -->
+    {{#  if(d.id > 1){ }}
+        <a class="layui-btn layui-btn-mini" lay-event="detail">查看</a>
+        <a class="layui-btn layui-btn-mini" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-mini" lay-event="del">删除</a>
+    {{# } else { }}
+        <a class="layui-btn layui-btn-mini layui-btn-disabled" lay-event="detail">查看</a>
+        <a class="layui-btn layui-btn-mini layui-btn-disabled" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-mini layui-btn-disabled" lay-event="del">删除</a>
+    {{#  } }}
+</script>
+</body>
+</html>
