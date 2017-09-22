@@ -88,7 +88,7 @@
                 </dl>
             </li>
         </ul>
-        <ul class="layui-nav layui-layout-right">
+        <ul class="layui-nav layui-layout-right"  lay-filter="top-right-nav">
             <li class="layui-nav-item">
                 <a href="javascript:;">
                     <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
@@ -99,7 +99,7 @@
                     <dd><a href="">安全设置</a></dd>
                 </dl>
             </li>
-            <li class="layui-nav-item"><a href="">退出</a></li>
+            <li class="layui-nav-item" data-action="logout"><a href="javascript:;">退出</a></li>
         </ul>
     </div>
     
@@ -229,6 +229,25 @@ layui.use('element', function(){
             url = $this.data('url'),
             name = $this.data('name');
         app.maintabChange(id, name, url);
+    });
+
+    // 头部右侧菜单
+    element.on('nav(top-right-nav)', function(elem){
+        var $this = $(this),
+            action = $this.data('action'),
+            actionlist = {
+                logout: function()
+                {
+                    $.ajax({
+                        url: '/admin/common/logout',
+                    })
+                    .always(function() {
+                        location.reload();
+                    });
+                    
+                },
+            };
+        actionlist[action]();
     });
 
     // 主选项卡关闭按钮

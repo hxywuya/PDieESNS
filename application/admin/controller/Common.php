@@ -44,4 +44,9 @@ class Common extends AdminBase
         return $this->retval;
 
     }
+
+    public function logout()
+    {
+        session('ADMIN_ID', null);
+    }
 }

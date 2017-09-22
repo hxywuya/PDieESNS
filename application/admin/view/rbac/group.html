@@ -5,10 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>后台登录</title>
     <link rel="stylesheet" href="__layui__/css/layui.css">
+    <style type="text/css">
+        .sns-editer {
+            padding-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <table id="admin-group-list" lay-filter="admin-group-list">
-    </table>
+<div class="layui-container">
+    <div class="layui-row" style="margin-top: 10px;">
+        <div class="layui-btn-group demoTable">
+            <button class="layui-btn" data-type="getCheckData">获取选中行数据</button>
+            <button class="layui-btn" data-type="getCheckLength">获取选中数目</button>
+            <button class="layui-btn" data-type="isAll">验证是否全选</button>
+        </div>
+        <div class="sns-table-search" style="float: right;">
+            搜索ID：
+            <div class="layui-inline">
+                <input class="layui-input" name="id" id="demoReload" autocomplete="off">
+            </div>
+            <button class="layui-btn" data-type="reload">搜索</button>
+        </div>
+    </div>
+    <div class="layui-row">
+        <table id="admin-group-list" lay-filter="admin-group-list"></table>
+    </div>
+</div>
+<div class="layui-container sns-editer" id="editer" style="display: none;">
+    <from class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">组名：</label>
+            <div class="layui-input-block">
+                <input id="name" type="text" name="name" placeholder="组名" autocomplete="off" class="layui-input" lay-verify="username">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">创建时间：</label>
+            <div class="layui-input-block">
+                <input id="create_time" name="create_time" placeholder="创建时间" autocomplete="off" class="layui-input" lay-verify="pass" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">更新时间：</label>
+            <div class="layui-input-block">
+                <input id="update_time" name="update_time" placeholder="更新时间" autocomplete="off" class="layui-input" lay-verify="pass" disabled>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <input id="remark" name="remark" placeholder="备注" autocomplete="off" class="layui-input" lay-verify="pass">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-input-block">
+                <input id="status" type="checkbox" name="switch" lay-text="启用|禁用" lay-skin="switch">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <button class="layui-btn" lay-submit lay-filter="dologin" style="width: 100%;">编辑权限</button>
+        </div>
+    </from>
+</div>
 <script src="__layui__/layui.js"></script>
 <script>
 //JavaScript代码区域
@@ -20,25 +79,28 @@ layui.use(['element', 'form', 'table'], function(){
         $ = layui.$;
     table.render({
         elem: '#admin-group-list', //指定原始表格元素选择器（推荐id选择器）
+        height: 'full-0',
         page: true,
-        height: 315, //容器高度
         cols: [[
+            {checkbox: true},
             {field: 'id', title: 'ID', width: 50},
             {field: 'status', title: '状态', width: 60},
             {field: 'name', title: '组名', width: 120},
             {field: 'create_time', title: '创建时间', width: 200},
             {field: 'update_time', title: '更新时间', width: 200},
             {field: 'remark', title: '备注', width: 120},
-            {fixed: 'right', title: '操作', width:150, align:'center', toolbar: '#barDemo'}
+            {fixed: 'right', title: '操作', width:160, align:'center', toolbar: '#admin-group-list-bar'}
         ]], //设置表头
-        url: "/admin/rbac/grouplist",
+        url: "/admin/rbac/group",
+        method: "post",
         response: {
             statusName: 'status', //数据状态的字段名称，默认：code
             statusCode: 1, //成功的状态码，默认：0
             msgName: 'msg', //状态信息的字段名称，默认：msg
             countName: 'count', //数据总数的字段名称，默认：count
             dataName: 'data', //数据列表的字段名称，默认：data
-        }
+        },
+        limit: 10
     });
     table.on('tool(admin-group-list)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
         var data = obj.data; //获得当前行数据
@@ -54,8 +116,21 @@ layui.use(['element', 'form', 'table'], function(){
                 //向服务端发送删除指令
             });
         } else if(layEvent === 'edit'){ //编辑
-            //do something
-        
+            var editer = layer.open({
+                type: 1,
+                content: $("#editer") //这里content是一个普通的String
+            });
+            layer.full(editer);
+            $("#name").val(data.name);
+            $("#create_time").val(data.create_time);
+            $("#update_time").val(data.update_time);
+            $("#remark").val(data.remark);
+            if (data.status == 1) {
+                $("#status").attr('checked', true);
+            } else {
+                $("#status").attr('checked', false);
+            }
+            form.render();console.log(data);
             //同步更新缓存对应的值
             obj.update({
                 username: '123'
@@ -65,16 +140,16 @@ layui.use(['element', 'form', 'table'], function(){
     });
 });
 </script>
-<script type="text/html" id="barDemo">
+<script type="text/html" id="admin-group-list-bar">
     <!-- 这里同样支持 laytpl 语法，如： -->
     {{#  if(d.id > 1){ }}
         <a class="layui-btn layui-btn-mini" lay-event="detail">查看</a>
         <a class="layui-btn layui-btn-mini" lay-event="edit">编辑</a>
         <a class="layui-btn layui-btn-danger layui-btn-mini" lay-event="del">删除</a>
     {{# } else { }}
-        <a class="layui-btn layui-btn-mini layui-btn-disabled" lay-event="detail">查看</a>
-        <a class="layui-btn layui-btn-mini layui-btn-disabled" lay-event="edit">编辑</a>
-        <a class="layui-btn layui-btn-danger layui-btn-mini layui-btn-disabled" lay-event="del">删除</a>
+        <a class="layui-btn-disabled layui-btn layui-btn-mini" lay-event="detail">查看</a>
+        <a class="layui-btn-disabled layui-btn layui-btn-mini" lay-event="edit">编辑</a>
+        <a class="layui-btn-disabled layui-btn layui-btn-danger layui-btn-mini" lay-event="del">删除</a>
     {{#  } }}
 </script>
 </body>
