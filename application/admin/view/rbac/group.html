@@ -33,38 +33,44 @@
 </div>
 <div class="layui-container sns-editer" id="editer" style="display: none;">
     <from class="layui-form">
-        <div class="layui-form-item">
-            <label class="layui-form-label">组名：</label>
-            <div class="layui-input-block">
-                <input id="name" type="text" name="name" placeholder="组名" autocomplete="off" class="layui-input" lay-verify="username">
+        <div class="layui-col-md6 layui-col-md-offset3 layui-col-sm8 layui-col-sm-offset2">
+            <input id="id" class="layui-hide" name="id">
+            <div class="layui-form-item">
+                <label class="layui-form-label">组名：</label>
+                <div class="layui-input-block">
+                    <input id="name" type="text" name="name" autocomplete="off" class="layui-input" lay-verify="required">
+                </div>
             </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">创建时间：</label>
-            <div class="layui-input-block">
-                <input id="create_time" name="create_time" placeholder="创建时间" autocomplete="off" class="layui-input" lay-verify="pass" disabled>
+            <div class="layui-form-item">
+                <label class="layui-form-label">创建时间：</label>
+                <div class="layui-input-block">
+                    <input id="create_time" name="create_time" autocomplete="off" class="layui-input" disabled>
+                </div>
             </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">更新时间：</label>
-            <div class="layui-input-block">
-                <input id="update_time" name="update_time" placeholder="更新时间" autocomplete="off" class="layui-input" lay-verify="pass" disabled>
+            <div class="layui-form-item">
+                <label class="layui-form-label">更新时间：</label>
+                <div class="layui-input-block">
+                    <input id="update_time" name="update_time" autocomplete="off" class="layui-input" disabled>
+                </div>
             </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">备注：</label>
-            <div class="layui-input-block">
-                <input id="remark" name="remark" placeholder="备注" autocomplete="off" class="layui-input" lay-verify="pass">
+            <div class="layui-form-item">
+                <label class="layui-form-label">备注：</label>
+                <div class="layui-input-block">
+                    <input id="remark" name="remark" autocomplete="off" class="layui-input" lay-verify="required">
+                </div>
             </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">状态：</label>
-            <div class="layui-input-block">
-                <input id="status" type="checkbox" name="switch" lay-text="启用|禁用" lay-skin="switch">
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态：</label>
+                <div class="layui-input-block">
+                    <input id="status" type="checkbox" name="status" lay-text="启用|禁用" lay-skin="switch">
+                </div>
             </div>
-        </div>
-        <div class="layui-form-item">
-            <button class="layui-btn" lay-submit lay-filter="dologin" style="width: 100%;">编辑权限</button>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="domodify">提交修改</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">编辑权限</button>
+                </div>
+            </div>
         </div>
     </from>
 </div>
@@ -76,8 +82,10 @@ layui.use(['element', 'form', 'table'], function(){
         form = layui.form,
         layer = layui.layer,
         table = layui.table,
-        $ = layui.$;
-    table.render({
+        $ = layui.$,
+        editer = null, // 编辑弹窗
+        datetable = null; // 数据表单
+    datetable = table.render({
         elem: '#admin-group-list', //指定原始表格元素选择器（推荐id选择器）
         height: 'full-0',
         page: true,
@@ -116,11 +124,12 @@ layui.use(['element', 'form', 'table'], function(){
                 //向服务端发送删除指令
             });
         } else if(layEvent === 'edit'){ //编辑
-            var editer = layer.open({
+            editer = layer.open({
                 type: 1,
                 content: $("#editer") //这里content是一个普通的String
             });
             layer.full(editer);
+            $("#id").val(data.id);
             $("#name").val(data.name);
             $("#create_time").val(data.create_time);
             $("#update_time").val(data.update_time);
@@ -130,13 +139,43 @@ layui.use(['element', 'form', 'table'], function(){
             } else {
                 $("#status").attr('checked', false);
             }
-            form.render();console.log(data);
+            form.render();
             //同步更新缓存对应的值
             obj.update({
                 username: '123'
                 ,title: 'xxx'
             });
         }
+    });
+
+    form.on('submit(domodify)', function(data){
+        var load = layer.load();
+        data.field.type = "domodify";
+        if (data.field.status) {
+            data.field.status = 1;
+        } else {
+            data.field.status = 0;
+        }
+        $.ajax({
+            url: '/admin/rbac/group',
+            type: 'POST',
+            data: data.field,
+        })
+        .done(function(e) {
+            layer.msg(e.msg);
+            if (e.status == 1) {
+                layer.close(editer);
+                datetable.reload();
+            }
+        })
+        .fail(function() {
+            layer.msg("未知错误");
+        })
+        .always(function() {
+            layer.close(load);
+        });
+        
+        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
 });
 </script>

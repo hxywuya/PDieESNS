@@ -10,4 +10,18 @@ class AdminGroup extends Model
     {
         return $this->page($page, $limit)->select();
     }
+
+    public function updateGroup($id = 0, $name = "", $remark = "", $status = "")
+    {
+        $code = $this->save([
+            'name' => $name,
+            'remark' => $remark,
+            'status' => $status
+        ],['id' => $id]);
+        if ($code == 1) {
+            return $this->where('id', $id)->find();
+        } else {
+            return false;
+        }
+    }
 }
